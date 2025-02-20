@@ -25,6 +25,7 @@ export const Gestion = () => {
                                         <th>Correo</th>
                                         <th>Teléfono</th>
                                         <th>Edad</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
