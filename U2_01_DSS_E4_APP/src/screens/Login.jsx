@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 
 export const Login = () => { 
 
+<<<<<<< HEAD
     const [ usuario, setUsuario ] = useState("");
     const [ contra, setContra ] = useState("");
 
@@ -37,6 +38,10 @@ export const Login = () => {
             Swal.fire("Usuario no encontrado","Uusario y/o contraseña erroneos","error");
         }
     }
+=======
+    localStorage.setItem("usuario", 'si')
+
+>>>>>>> main
     return(
         <>
         <Container>
