@@ -1,6 +1,9 @@
 
 
 export const Login = () => { 
+
+    localStorage.setItem("usuario", 'si')
+
     return(
         <>
         <div className="body">
