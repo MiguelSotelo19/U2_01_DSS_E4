@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/simnil/comunidades")
+@RequestMapping("/usuario")
 @CrossOrigin(origins = {"*"})
 @AllArgsConstructor
 public class UsuarioController {
@@ -19,7 +19,7 @@ public class UsuarioController {
 
     @PostMapping("/registrar")
     public UsuariosBean registrarUsuario(@RequestBody UsuarioDto usuarioDto) {
-        UsuariosBean usuario = new UsuariosBean(usuarioDto.getNombre(), usuarioDto.getApellidoPaterno(), usuarioDto.getApellidoPaterno(), usuarioDto.getCorreo(), usuarioDto.getNumeroTelefonico(), usuarioDto.getEdad());
+        UsuariosBean usuario = new UsuariosBean(usuarioDto.getNombre(), usuarioDto.getApellidoPaterno(), usuarioDto.getApellidoPaterno(), usuarioDto.getCorreo(), usuarioDto.getNumeroTelefonico(), usuarioDto.getContrasena(),usuarioDto.getEdad());
         return usuarioService.registrarUsuario(usuario);
     }
 

@@ -4,7 +4,7 @@ import { redirect, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 export const Login = () => { 
-
+    const urlUser = "http://localhost:8080/cliente/";
     const [ usuario, setUsuario ] = useState("");
     const [ contra, setContra ] = useState("");
 
@@ -14,6 +14,14 @@ export const Login = () => {
         {"usuario":"Diego","contraseña":"1234"},
         {"usuario":"Miguel","contraseña":"1234"}
     ]
+
+    const getClientes = async () => {
+        const respuesta = await axios({
+            method: 'GET',
+            url: urlClientes,
+        });
+        setClientes(respuesta.data.data);
+    }
 
     function iniciarSesion(){
         let usuarioIniciado= null;

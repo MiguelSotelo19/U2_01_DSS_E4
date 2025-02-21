@@ -30,14 +30,18 @@ public class UsuariosBean {
     @Column(length = 10, nullable = false)
     private String numeroTelefonico;
 
+    @Column(length = 100, nullable = false)
+    private String contrasena;
+
     private int edad;
 
-    public UsuariosBean(String nombre, String apellidoPaterno, String apellidoMaterno, String correo, String numeroTelefonico, int edad) {
+    public UsuariosBean(String nombre, String apellidoPaterno, String apellidoMaterno, String correo, String numeroTelefonico, String contrasena, int edad) {
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
         this.correo = correo;
         this.numeroTelefonico = numeroTelefonico;
+        this.contrasena=contrasena;
         this.edad = edad;
     }
 }
