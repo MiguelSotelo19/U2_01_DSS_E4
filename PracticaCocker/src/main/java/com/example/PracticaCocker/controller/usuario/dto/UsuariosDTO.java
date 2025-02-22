@@ -1,12 +1,12 @@
-package com.example.Practica1.controller.Usuario.DTO;
-import com.example.Practica1.Model.Usuario.UsuariosBean;
+package com.example.PracticaCocker.controller.usuario.dto;
+
+import com.example.PracticaCocker.model.usuario.UsuariosBean;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class UsuarioDto {
-
+public class UsuariosDTO {
     private Long id;
     private String nombre;
     private String apellidoPaterno;
@@ -84,4 +84,3 @@ public class UsuarioDto {
         this.contrasena = contrasena;
     }
 }
-

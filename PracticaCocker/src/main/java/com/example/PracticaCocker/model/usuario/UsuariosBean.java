@@ -1,4 +1,5 @@
-package com.example.Practica1.Model.Usuario;
+package com.example.PracticaCocker.model.usuario;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,3 +46,4 @@ public class UsuariosBean {
         this.edad = edad;
     }
 }
+
