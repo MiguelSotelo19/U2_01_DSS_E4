@@ -4,6 +4,8 @@ import Modal from "react-modal";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle";
+//id usuario operacion fecha
+//operaciones GET/ PUT / POST / DELETE
 
 const customStyles = {
     content: {
@@ -28,7 +30,7 @@ Modal.setAppElement("#root");
 
 export const Gestion = () => { 
     const url = "";
-    const [usuarios, setUsuarios] = useState([
+    const [ usuarios, setUsuarios ] = useState([
         {
             id: 1,
             nombre: 'Juan',
@@ -51,15 +53,15 @@ export const Gestion = () => {
     const [ emailStatus, setEmailStatus ] = useState(false);
     const [ telStatus, setTelStatus ] = useState(false);
 
-    const [id, setId] = useState(0);
-    const [nombre, setNombre] = useState("");
-    const [apellidoPaterno, setApe_m] = useState("");
-    const [apellidoMaterno, setApe_p] = useState("");
-    const [correo, setCorreo] = useState("");
-    const [numeroTelefoncico, setNumT] = useState("");
-    const [edad, setEdad] = useState("");
+    const [ id, setId ] = useState(0);
+    const [ nombre, setNombre ] = useState("");
+    const [ apellidoPaterno, setApe_m ] = useState("");
+    const [ apellidoMaterno, setApe_p ] = useState("");
+    const [ correo, setCorreo ] = useState("");
+    const [ numeroTelefoncico, setNumT ] = useState("");
+    const [ edad, setEdad ] = useState("");
 
-    const [ modalEdit, setOpenEdit] = React.useState(false);
+    const [ modalEdit, setOpenEdit ] = React.useState(false);
 
     function closeModalEdit() { setOpenEdit(false); }
 
@@ -87,11 +89,11 @@ export const Gestion = () => {
     }, []);*/
 
     const getUsuarios = async () => {
-    const respuesta = await axios({
-        method: "GET",          
-        url: url 
-    });
-    setUsuarios(respuesta.data.data);
+        const respuesta = await axios({
+            method: "GET",          
+            url: url 
+        });
+        setUsuarios(respuesta.data.data);
     }
 
     const validarEmail = (e) => {
@@ -119,13 +121,19 @@ export const Gestion = () => {
       }
 
     let usuario = localStorage.getItem("usuario")
-    if(usuario == 'si') {
-        window.location = '/E403'
+    if(usuario != 'Iniciado') {
+        window.location = '/E403';
+    }
+
+    const cerrarSesion = () => {
+        localStorage.setItem("usuario", "No Iniciado");
+        window.location = '/';
     }
 
     return(
         <>
         <div className="main">
+            <button onClick={() => cerrarSesion()}>Salir</button>
             <div className="container-fluid">
                 <div className="row mt-3">
                     <div className="col-12 col-lg-8 offset-0 offset-lg-2">
@@ -140,7 +148,7 @@ export const Gestion = () => {
                                         <th>Correo</th>
                                         <th>Teléfono</th>
                                         <th>Edad</th>
-                                        {/*<th>Acciones</th>*/}
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody className="table-group-divider">
@@ -154,7 +162,7 @@ export const Gestion = () => {
                                             <td>{user.correo}</td>
                                             <td>{user.numeroTelefonico}</td>
                                             <td>{user.edad}</td>
-                                            {/*<td>
+                                            <td>
                                                 <div className="d-flex align-items-center">
                                                 <button className="btn btn-warning mr-2" style={{ width: '77px', maxWidth: '77px'}} onClick={() => openModalEdit(
                                                         user.id, user.nombre, user.apellidoPaterno, user.apellidoMaterno, user.correo, user.numeroTelefonico
@@ -162,7 +170,7 @@ export const Gestion = () => {
                                                     <button className="btn" style={{ backgroundColor: "#e75a5a", marginRight: "5px", width: '77px', maxWidth: '77px' }} onClick={() => deleteUsuario(
                                                         usuario.id, usuario.nombre)}>Eliminar</button>
                                                 </div>
-                                            </td>*/}
+                                            </td>
                                         </tr>
                                     ))
                                     ) : (
