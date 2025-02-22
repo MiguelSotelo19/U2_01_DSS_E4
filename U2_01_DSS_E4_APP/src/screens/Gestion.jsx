@@ -1,3 +1,4 @@
+import Swal from "sweetalert2";
 import React, {use, useEffect, useState} from "react";
 import axios from "axios";
 import Modal from "react-modal";
@@ -29,111 +30,159 @@ const customStyles = {
 Modal.setAppElement("#root");
 
 export const Gestion = () => { 
-    const url = "";
-    const [ usuarios, setUsuarios ] = useState([
-        {
-            id: 1,
-            nombre: 'Juan',
-            apellidoPaterno: 'Pérez',
-            apellidoMaterno: 'González',
-            correo: 'juan.perez@email.com',
-            numeroTelefonico: '555-1234',
-            edad: 30
-          },
-          {
-            id: 2,
-            nombre: 'Ana',
-            apellidoPaterno: 'López',
-            apellidoMaterno: 'Martínez',
-            correo: 'ana.lopez@email.com',
-            numeroTelefonico: '555-5678',
-            edad: 25
-          }
-    ]);
+    const url = "http://127.0.0.1:8080/api/almacen/person/";
+    const [ usuarios, setUsuarios ] = useState([]);
     const [ emailStatus, setEmailStatus ] = useState(false);
     const [ telStatus, setTelStatus ] = useState(false);
 
     const [ id, setId ] = useState(0);
-    const [ nombre, setNombre ] = useState("");
-    const [ apellidoPaterno, setApe_m ] = useState("");
-    const [ apellidoMaterno, setApe_p ] = useState("");
-    const [ correo, setCorreo ] = useState("");
-    const [ numeroTelefoncico, setNumT ] = useState("");
-    const [ edad, setEdad ] = useState("");
+    const [ names, setNames ] = useState("");
+    const [ surname, setSurname ] = useState("");
+    const [ lastname, setLastname ] = useState("");
+    const [ email, setEmail ] = useState("");
+    const [ phoneNumber, setPhoneNumber ] = useState("");
 
+
+    const [modalOpen, setModalOpen] = useState(false);
     const [ modalEdit, setOpenEdit ] = React.useState(false);
+
+    let token = localStorage.getItem("token")
+    if(token == "null" || token == null) {
+        window.location = '/E403';
+    }
+
+    //console.log(token)
+    const cerrarSesion = () => {
+        localStorage.setItem("token", null);
+        window.location = '/';
+    }
 
     function closeModalEdit() { setOpenEdit(false); }
 
-    const openModalEdit = async (id, nombre, apellidoPaterno, apellidoMaterno, correo, numeroTelefoncico, edad) => {
-        setOpenEdit(true);
-
+    const openModalEdit = async (id, names, surname, lastname, email, phoneNumer) => {
+      console.log(phoneNumber);
         setId(id);
-        setIdPersonas(idPersonas);
-        setNombre(nombre);
-        setApe_m(apellidoPaterno);
-        setApe_p(apellidoMaterno);
-        setCorreo(correo);
-        setNumT(numeroTelefoncico);
-        setEdad(edad);
+        setNames(names);
+        setSurname(surname);
+        setLastname(lastname);
+        setEmail(email);
+        setPhoneNumber(phoneNumer);
+
+        setOpenEdit(true);
     }
 
 
-    function afterOpenModal() {
-        subtitle.style.color = "#f00";
-    }
-
-
-    /*useEffect( () => {
+    useEffect( () => {
         getUsuarios();
-    }, []);*/
+    }, []);
 
     const getUsuarios = async () => {
         const respuesta = await axios({
             method: "GET",          
-            url: url 
+            url: url,
+            headers: {
+              Authorization: `Bearer ${token}`
+            }   
         });
+        console.log(respuesta.data.data)
         setUsuarios(respuesta.data.data);
     }
 
     const validarEmail = (e) => {
-        let campo = e;
-            
-        let emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-        
-        if (emailRegex.test(campo.value)) {        
-          setEmailStatus(true);
-        } else {
-          setEmailStatus(false);
-        }
+      let email = typeof e === "string" ? e : e?.value; 
+    
+      let emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+    
+      if (emailRegex.test(email)) {        
+        setEmailStatus(true);
+      } else {
+        setEmailStatus(false);
       }
+    };
+    
   
-      const validarTel = (e) => {
-        let campo = e;
-            
-        let telRegex = /^[0-9]{10}$/;
-        
-        if (telRegex.test(campo.value)) {  
-          setTelStatus(true);
+    const validarTel = (e) => {
+      let telefono = typeof e === "string" ? e : e?.value;
+    
+      let telRegex = /^[0-9]{10}$/;
+    
+      if (telRegex.test(telefono)) {  
+        setTelStatus(true);
+      } else {
+        setTelStatus(false);
+      }
+    };
+    
+
+
+    const validar = (metodo) => {
+      event.preventDefault();
+
+      validarEmail(email);
+      validarTel(phoneNumber);
+
+      if (names.trim() === "") {
+        Swal.fire("Advertencia", "Escribe el Nombre", "warning");
+      } else if (surname.trim() === "") {
+        Swal.fire("Advertencia", "Escribe el Apellido Paterno", "warning");
+      } else if (lastname.trim() === "") {
+        Swal.fire("Advertencia", "Escribe el Apellido Materno", "warning");
+      } else if (email.trim() === "") {
+        Swal.fire("Advertencia", "Escribe el correo", "warning");
+      } else {
+        const parametros = {
+          id: id,
+          names: names,
+          surname: surname,
+          lastname: lastname,
+          birthdate: "1998-01-20",
+          email: email,
+          phoneNumber: parseInt(phoneNumber, 10) || 0,
+          address: "",
+          curp: ""
+        };
+
+        if (emailStatus && telStatus) {
+          enviarSolicitud(metodo, parametros, url);
+          getUsuarios();
         } else {
-          setTelStatus(false);
+          if (!emailStatus) {
+            Swal.fire("Error", "El Correo Electrónico no es válido");
+          } else if (!telStatus) {
+            Swal.fire("Error", "El Número Telefónico no es válido");
+          }
         }
       }
+    };
 
-    let usuario = localStorage.getItem("usuario")
-    if(usuario != 'Iniciado') {
-        window.location = '/E403';
+    const enviarSolicitud = async(metodo, parametros, url) => {
+      event.preventDefault();
+
+      await axios({
+        method: metodo,
+        url: url,
+        data: parametros,
+        headers: {
+          Authorization: `Bearer ${token}`
+        } 
+      }).then(function (respuesta) {
+        getUsuarios();
+        setModalOpen(false);
+        setOpenEdit(false);
+      })
+      .catch(function (error) {
+        Swal.fire("Error", "Error en la Solicitud");
+      });
     }
 
-    const cerrarSesion = () => {
-        localStorage.setItem("usuario", "No Iniciado");
-        window.location = '/';
-    }
 
     return(
         <>
         <div className="main">
-            <button onClick={() => cerrarSesion()}>Salir</button>
+            <div className="d-flex justify-content-evenly">
+              <button className="btn btn-primary" onClick={() => cerrarSesion()}>Salir</button>
+              <button className="btn btn-success" onClick={() => {setModalOpen(true); setId(0);}}>Añadir</button>
+            </div>
             <div className="container-fluid">
                 <div className="row mt-3">
                     <div className="col-12 col-lg-8 offset-0 offset-lg-2">
@@ -147,7 +196,6 @@ export const Gestion = () => {
                                         <th>Apellido Materno</th>
                                         <th>Correo</th>
                                         <th>Teléfono</th>
-                                        <th>Edad</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -156,19 +204,18 @@ export const Gestion = () => {
                                     usuarios.map((user, i) => (
                                         <tr key={user.id}>
                                             <td>{i+1}</td>
-                                            <td>{user.nombre}</td>
-                                            <td>{user.apellidoPaterno}</td>
-                                            <td>{user.apellidoMaterno}</td>
-                                            <td>{user.correo}</td>
-                                            <td>{user.numeroTelefonico}</td>
-                                            <td>{user.edad}</td>
+                                            <td>{user.names}</td>
+                                            <td>{user.surname}</td>
+                                            <td>{user.lastname}</td>
+                                            <td>{user.email}</td>
+                                            <td>{user.phoneNumber}</td>
                                             <td>
                                                 <div className="d-flex align-items-center">
                                                 <button className="btn btn-warning mr-2" style={{ width: '77px', maxWidth: '77px'}} onClick={() => openModalEdit(
-                                                        user.id, user.nombre, user.apellidoPaterno, user.apellidoMaterno, user.correo, user.numeroTelefonico
+                                                        user.id, user.names, user.surname, user.lastname, user.email, user.phoneNumber
                                                     )}>Editar</button>
                                                     <button className="btn" style={{ backgroundColor: "#e75a5a", marginRight: "5px", width: '77px', maxWidth: '77px' }} onClick={() => deleteUsuario(
-                                                        usuario.id, usuario.nombre)}>Eliminar</button>
+                                                        user.id)}>Eliminar</button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -188,70 +235,53 @@ export const Gestion = () => {
         </div>
 
 
-        <Modal
-              isOpen={modalEdit}
-              onAfterOpen={afterOpenModal}
-              onRequestClose={closeModalEdit}
-              style={customStyles}
-              contentLabel="Modal Edit"
-          >
-            <h2 style={{color: "#e67e22", fontSize: 35}}>Editar Usuario</h2>
-            <form style={{
-                width: "90%",
-                display: "flex", 
-                flexDirection: "column", 
-                alignItems: "center"}}>
-
-              <div className="info-1">
-                <div className="field">
-                  <span className="labInp">Nombre(s)</span>
-                  <input required type="text" placeholder="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+        {modalOpen && (
+            <div className="modal fade show d-block" tabIndex="-1">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Añadir Usuario</h5>
+                            <button type="button" className="btn-close" onClick={() => setModalOpen(false)}></button>
+                        </div>
+                        <div className="modal-body">
+                            <form>
+                                <input type="text" className="form-control mb-2" name="names" placeholder="Nombre" onChange={(e) => setNames(e.target.value)}  required />
+                                <input type="text" className="form-control mb-2" name="surname" placeholder="Apellido Paterno" onChange={(e) => setSurname(e.target.value)}  required />
+                                <input type="text" className="form-control mb-2" name="lastname" placeholder="Apellido Materno" onChange={(e) => setLastname(e.target.value)}  required />
+                                <input type="email" className="form-control mb-2" name="email" placeholder="Correo" onChange={(e) => {setEmail(e.target.value);}}  required />
+                                <input type="text" className="form-control mb-2" name="phoneNumber" placeholder="Teléfono" onChange={(e) => {setPhoneNumber(e.target.value);}}  required />
+                                <button className="btn btn-primary" onClick={() => validar("POST")}>Guardar</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-
-                <div className="field">
-                  <span className="labInp">Apellido Paterno</span>
-                  <input required type="text" placeholder="Apellido Paterno" value={apellidoPaterno} onChange={(e) => setApe_p(e.target.value)} />
-                </div>
-              </div>
-
-              <div className="info-1">
-                <div className="field">
-                  <span className="labInp">Apellido Materno</span>
-                  <input required type="text" placeholder="Apellido Materno" value={apellidoMaterno} onChange={(e) => setApe_m(e.target.value)} />
-                </div>
-
-                <div className="field">
-                  <span className="labInp">Núm. de Teléfono</span>
-                  <input required type="number" maxLength={10} minLength={10} min={0} placeholder="Número de Teléfono" onInput={
-                  (e) => { validarTel(e.target); } }
-                   value={numeroTelefoncico} onChange={(e) => setNumeroTelefoncico(e.target.value)} />
-                </div>
-              </div>
-
-              <div className="info-1">
-                <div className="field">
-                  <span className="labInp">Correo Electrónico</span>
-                  <input required type="email" onInput={
-                    (e) => { validarEmail(e.target); }
-                  } placeholder="Correo Electrónico" value={correo} onChange={(e) => setCorreo(e.target.value)} />
-                </div>
-
-                <div className="field">
-                  <span className="labInp">Edad</span>
-                  <input required type="number" maxLength={10} minLength={10} min={0} placeholder="Edad"
-                   value={edad} onChange={(e) => setEdad(e.target.value)} />
-                </div>
-              </div>
-              
-              
-
-            <div className="acciones">
-              <button id="recu" onClick={() => validar("PUT")}>Guardar Cambios</button>
-              <button className="cancelar" id="cancelarEdit" onClick={closeModalEdit}>Cancelar</button>
             </div>
-            
-            </form>
-          </Modal>
+        )}
+
+        {modalEdit && (
+            <div className="modal fade show d-block" tabIndex="-1">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Actualizar Usuario</h5>
+                            <button type="button" className="btn-close" onClick={closeModalEdit}></button>
+                        </div>
+                        <div className="modal-body">
+                            <form>
+                                <input type="text" className="form-control mb-2" name="names" placeholder="Nombre" value={names} onChange={(e) => setNames(e.target.value)} required/>
+                                <input type="text" className="form-control mb-2" name="surname" placeholder="Apellido Paterno" value={surname} onChange={(e) => setSurname(e.target.value)} required />
+                                <input type="text" className="form-control mb-2" name="lastname" placeholder="Apellido Materno" value={lastname} onChange={(e) => setLastname(e.target.value)} required />
+                                <input type="email" className="form-control mb-2" name="email" placeholder="Correo"value={email} onChange={(e) => {setEmail(e.target.value);}} required />
+                                <input type="text" className="form-control mb-2" name="phoneNumber" placeholder="Teléfono" value={phoneNumber} onChange={(e) => {setPhoneNumber(e.target.value);}} required  />
+                                <button className="btn btn-primary" onClick={() => validar("PUT")}>
+                                    Actualizar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
 
         </>
     );

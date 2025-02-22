@@ -2,6 +2,8 @@ package com.example.PracticaCocker.Service.usuario;
 
 import com.example.PracticaCocker.model.usuario.UsuariosBean;
 import com.example.PracticaCocker.model.usuario.UsuarioRepository;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
+@AllArgsConstructor
 public class UsuarioService {
     @Autowired
     private UsuarioRepository UsuarioRepository;
