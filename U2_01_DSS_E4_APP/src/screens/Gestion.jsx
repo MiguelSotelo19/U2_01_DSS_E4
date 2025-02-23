@@ -199,31 +199,39 @@ export const Gestion = () => {
       });
     }
 
-    const eliminarAlerta=(idUsuario)=>{
+    const eliminarAlerta = (idUsuario) => {
       event.preventDefault();
       Swal.fire({
-        title:'Eliminar',
-        text:'¿Eliminar usuario?',
-        icon:'warning',
-        cancelButtonText:'Cancelar',
-        confirmButtonText:'Eliminar'
-      }).then((r)=>{
-      if(r.isConfirmed){
-        eliminarUsuario(idUsuario)
-      }}).then(() => {
-        Swal.fire({
-          title: 'Usuario eliminado',
-          text: 'El usuario ha sido eliminado',
-          icon: 'success',
-        });
-      }).catch((error) => {
-          Swal.fire({
-            title: 'Error',
-            text: 'Hubo un problema al eliminar el usuario',
-            icon: 'error',
+        title: 'Eliminar',
+        text: '¿Eliminar usuario?',
+        icon: 'warning',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Eliminar'
+      }).then((r) => {
+        if (r.isConfirmed) {
+          eliminarUsuario(idUsuario).then(() => {
+            Swal.fire({
+              title: 'Usuario eliminado',
+              text: 'El usuario ha sido eliminado',
+              icon: 'success',
+            });
+          }).catch((error) => {
+            Swal.fire({
+              title: 'Error',
+              text: 'Hubo un problema al eliminar el usuario',
+              icon: 'error',
+            });
           });
+        } else if (r.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire({
+            title: 'Cancelado',
+            text: 'La acción ha sido cancelada',
+            icon: 'info',
+          });
+        }
       });
-    };
+    };    
 
     const eliminarUsuario= async(idUsuario)=>{
       await axios({
