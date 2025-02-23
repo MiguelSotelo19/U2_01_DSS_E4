@@ -39,7 +39,7 @@ public class InitialConfig implements CommandLineRunner {
         //Crear un usuario para que puedan iniciar sesión (person, user, user_role)
         PersonBean person = getOrSavePerson(
                 new PersonBean("mike", "moreno", "Velazquez",
-                        LocalDate.of(1998, 1, 19), "MOVM980119HM", "alguien@example.com")
+                        20, "alguien@example.com", "1231231231","123")
         );
         UserBean user = getOrSaveUser(
                 new UserBean("admin", encoder.encode("admin"), person)

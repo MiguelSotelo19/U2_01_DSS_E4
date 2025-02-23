@@ -26,14 +26,12 @@ public class PersonBean {
     private String surname;
     @Column(length = 50, nullable = false)
     private String lastname;
-    @Column(columnDefinition = "DATE", nullable = false)
-    private LocalDate birthdate;
+    @Column
+    private int age;
     @Column(length = 150, nullable = true)
     private String email;
     @Column(length = 10, nullable = true)
     private String phoneNumber;
-    @Column(length = 200, nullable = true)
-    private String address;
     @Column(length = 18, nullable = true)
     private String curp;
 
@@ -43,38 +41,34 @@ public class PersonBean {
     private UserBean userBean;
 
 
-    public PersonBean(Long id,String names, String surname, String lastname, LocalDate birthdate, String email, String phoneNumber, String address, String curp) {
+    public PersonBean(Long id,String names, String surname, String lastname, int age, String email, String phoneNumber, String curp) {
         this.id = id;
         this.names = names;
         this.surname = surname;
         this.lastname = lastname;
-        this.birthdate = birthdate;
+        this.age = age;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.address = address;
         this.curp = curp;
     }
 
-    public PersonBean(String names, String surname, String lastname, LocalDate birthdate, String email, String phoneNumber, String address, String curp) {
+    public PersonBean(String names, String surname, String lastname, int age, String email, String phoneNumber, String curp) {
         this.names = names;
         this.surname = surname;
         this.lastname = lastname;
-        this.birthdate = birthdate;
+        this.age = age;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.address = address;
         this.curp = curp;
     }
 
 
-    public PersonBean(String name, String surname, String lastname, LocalDate birthDate, String curp, String email) {
+    public PersonBean(String name, String surname, String lastname, int age, String curp, String email) {
         this.names = name;
         this.surname = surname;
         this.lastname = lastname;
-        this.birthdate = birthDate;
+        this.age = age;
         this.curp = curp;
     }
-
-
 
 }

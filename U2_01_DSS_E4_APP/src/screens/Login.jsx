@@ -15,7 +15,6 @@ export const Login = () => {
     const navigate = useNavigate();
 
     const validar = async () => {
-      console.log("DSADSADSA");
   
       try {
           const res = await axios.post(urlAuth, {

@@ -30,11 +30,11 @@ const customStyles = {
 Modal.setAppElement("#root");
 
 export const Gestion = () => { 
-    const url = "http://127.0.0.1:8080/api/almacen/person/";
+    const url = "http://127.0.0.1:8080/api/person/";
     const [ usuarios, setUsuarios ] = useState([]);
     const [ emailStatus, setEmailStatus ] = useState(false);
     const [ telStatus, setTelStatus ] = useState(false);
-
+    const [ age, setAge]= useState(0)
     const [ id, setId ] = useState(0);
     const [ names, setNames ] = useState("");
     const [ surname, setSurname ] = useState("");
@@ -59,12 +59,12 @@ export const Gestion = () => {
 
     function closeModalEdit() { setOpenEdit(false); }
 
-    const openModalEdit = async (id, names, surname, lastname, email, phoneNumer) => {
-      console.log(phoneNumber);
+    const openModalEdit = async (id, names, surname, lastname, age,email, phoneNumer) => {
         setId(id);
         setNames(names);
         setSurname(surname);
         setLastname(lastname);
+        setAge(age);
         setEmail(email);
         setPhoneNumber(phoneNumer);
 
@@ -91,7 +91,7 @@ export const Gestion = () => {
     const validarEmail = (e) => {
       let email = typeof e === "string" ? e : e?.value; 
     
-      let emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+      let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
     
       if (emailRegex.test(email)) {        
         setEmailStatus(true);
@@ -101,7 +101,7 @@ export const Gestion = () => {
     };
 
     const validacionUpdate = (correo, tel) => {
-      let emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+      let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}$/;
       let telRegex = /^[0-9]{10}$/;
       console.log("entro a validacionInput")
       console.log(emailRegex.test(correo))
@@ -121,6 +121,7 @@ export const Gestion = () => {
     
       let telRegex = /^[0-9]{10}$/;
     
+      console.log(telStatus)
       if (telRegex.test(telefono)) {  
         setTelStatus(true);
       } else {
@@ -140,26 +141,30 @@ export const Gestion = () => {
         Swal.fire("Advertencia", "Escribe el Apellido Paterno", "warning");
       } else if (!lastname || lastname.trim() === "") {
         Swal.fire("Advertencia", "Escribe el Apellido Materno", "warning");
+      } else if (!age || age==0) {
+        Swal.fire("Advertencia", "Escribe la edad", "warning");
+      }else if (age>100) {
+        Swal.fire("Advertencia", "La edad no puede superar los 100 años", "warning");
       } else if (!email || email.trim() === "") {
         Swal.fire("Advertencia", "Escribe el correo", "warning");
       } else if (!emailStatus) {
         Swal.fire("Error", "El Correo Electrónico no es válido",'error');
       } else if (!phoneNumber || phoneNumber.trim() === "") {
         Swal.fire("Advertencia", "Escribe el número de telefono", "warning");
-      }  else if (!telStatus) {
+      } else if (!telStatus) {
         Swal.fire("Error", "El Número Telefónico debe contener 10 digitos","error");
       }else {
         const parametros = {
+          age: age,
+          curp: "",
+          email: email.toLowerCase(),
           id: id,
-          names: names,
-          surname: surname,
           lastname: lastname,
-          birthdate: "1998-01-20",
-          email: email,
+          names: names,
           phoneNumber: parseInt(phoneNumber, 10) || 0,
-          address: "",
-          curp: ""
+          surname: surname,
         };
+        console.log(parametros)
         if (emailStatus && telStatus) {
           enviarSolicitud(metodo, parametros, url);
           getUsuarios();
@@ -169,7 +174,10 @@ export const Gestion = () => {
 
     const enviarSolicitud = async(metodo, parametros, url) => {
       event.preventDefault();
-
+      if (metodo =="POST"){
+        url=url+'registrar'
+      }
+      console.log(token)
       await axios({
         method: metodo,
         url: url,
@@ -178,15 +186,12 @@ export const Gestion = () => {
           Authorization: `Bearer ${token}`
         } 
       }).then(function (respuesta) {
-        if (respuesta.status >= 200 && respuesta.status < 300) {
+        
           getUsuarios();
           setModalOpen(false);
           setOpenEdit(false);
           limpiar();
-        } else {
-          // Maneja cualquier otro código de estado que no sea 2xx
-          Swal.fire("Error", "Error en la Solicitud");
-        }
+        
       })
       .catch(function (error) {
         console.error(error); // Verifica el error en consola
@@ -242,6 +247,7 @@ export const Gestion = () => {
       setEmailStatus(false);
       setTelStatus(false);
       setNames("");
+      setAge("");
       setSurname("");
       setLastname("");
       setEmail("");
@@ -285,12 +291,13 @@ export const Gestion = () => {
                                             <td>{user.names}</td>
                                             <td>{user.surname}</td>
                                             <td>{user.lastname}</td>
+                                            <td>{user.age}</td>
                                             <td>{user.email}</td>
                                             <td>{user.phoneNumber}</td>
                                             <td>
                                                 <div className="d-flex align-items-center">
                                                 <button className="btn btn-warning mr-2" style={{ width: '77px', maxWidth: '77px'}} onClick={() => openModalEdit(
-                                                        user.id, user.names, user.surname, user.lastname, user.email, user.phoneNumber
+                                                        user.id, user.names, user.surname, user.lastname, user.age, user.email, user.phoneNumber
                                                     )}>Editar</button>
                                                     <button className="btn" style={{ backgroundColor: "#e75a5a", marginRight: "5px", width: '77px', maxWidth: '77px' }} onClick={() => eliminarAlerta(
                                                         user.id)}>Eliminar</button>
@@ -326,8 +333,9 @@ export const Gestion = () => {
                                 <input type="text" className="form-control mb-2" name="names" placeholder="Nombre" onChange={(e) => setNames(e.target.value)}  required />
                                 <input type="text" className="form-control mb-2" name="surname" placeholder="Apellido Paterno" onChange={(e) => setSurname(e.target.value)}  required />
                                 <input type="text" className="form-control mb-2" name="lastname" placeholder="Apellido Materno" onChange={(e) => setLastname(e.target.value)}  required />
+                                <input type="number" className="form-control mb-2" name="age" placeholder="Edad" onChange={(e) => setAge(e.target.value)}  required />
                                 <input type="email" className="form-control mb-2" name="email" placeholder="Correo" onChange={(e) => {setEmail(e.target.value); validarEmail(e.target.value);}}  required />
-                                <input type="number" className="form-control mb-2" name="phoneNumber" placeholder="Teléfono" onChange={(e) => {setPhoneNumber(e.target.value);}}  required 
+                                <input type="number" className="form-control mb-2" name="phoneNumber" placeholder="Teléfono" onChange={(e) => {setPhoneNumber(e.target.value); validarTel(e.target.value);}}  required 
                                 maxLength={10} onInput={ (e)=> {e.target.value= e.target.value.slice(0,10);
                                   if(e.target.value <0) e.target.value=""}
                                   }/>
@@ -352,6 +360,7 @@ export const Gestion = () => {
                                 <input type="text" className="form-control mb-2" name="names" placeholder="Nombre" value={names} onChange={(e) => setNames(e.target.value)} required/>
                                 <input type="text" className="form-control mb-2" name="surname" placeholder="Apellido Paterno" value={surname} onChange={(e) => setSurname(e.target.value)} required />
                                 <input type="text" className="form-control mb-2" name="lastname" placeholder="Apellido Materno" value={lastname} onChange={(e) => setLastname(e.target.value)} required />
+                                <input type="number" className="form-control mb-2" name="age" placeholder="Edad" value={age} onChange={(e) => setAge(e.target.value)} required />
                                 <input type="email" className="form-control mb-2" name="email" placeholder="Correo"value={email} onChange={(e) => {setEmail(e.target.value);}} onInput={(e) => { validarEmail(e.target); }} required />
                                 <input type="number" className="form-control mb-2" name="phoneNumber" placeholder="Teléfono" value={phoneNumber} onChange={(e) => {setPhoneNumber(e.target.value);}} required  
                                 maxLength={10} onInput={ (e)=> {e.target.value= e.target.value.slice(0,10);
