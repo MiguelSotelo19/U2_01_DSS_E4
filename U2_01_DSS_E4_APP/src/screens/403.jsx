@@ -1,6 +1,13 @@
+import { useNavigate } from 'react-router-dom';
 import Img403 from '../assets/Img403.webp'
 
 export const E403 = () => { 
+
+    const navigate = useNavigate();
+
+    const volver = () => {
+        navigate("/");
+    };
 
     return(
         <>
@@ -9,6 +16,7 @@ export const E403 = () => {
                 <img src={Img403} alt="403" draggable="false" />
                 <h1>403 Acceso denegado</h1>
                 <p>No tienes acceso a este sitio!</p>
+                <button className="btn btn-info" style={{width:'20%'}} onClick={volver}>Volver</button>
             </div>
         </div>
         </>

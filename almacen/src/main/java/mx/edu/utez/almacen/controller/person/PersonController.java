@@ -35,4 +35,9 @@ public class PersonController {
     public ResponseEntity<ApiResponse> update(@RequestBody PersonDto dto){
         return service.update(dto.toEntityId());
     }
+
+    @DeleteMapping("/")
+    public ResponseEntity<ApiResponse> delete(@RequestBody PersonDto dto) {
+        return service.delete(dto.toEntityId());
+    }
 }

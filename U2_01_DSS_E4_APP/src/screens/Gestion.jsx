@@ -99,6 +99,21 @@ export const Gestion = () => {
         setEmailStatus(false);
       }
     };
+
+    const validacionUpdate = (correo, tel) => {
+      let emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+      let telRegex = /^[0-9]{10}$/;
+      console.log("entro a validacionInput")
+      console.log(emailRegex.test(correo))
+      console.log(telRegex.test(tel))
+      if(emailRegex.test(correo) && telRegex.test(tel)) {
+        setEmailStatus(true);
+        setTelStatus(true);
+      }else {
+        setEmailStatus(false);
+        setTelStatus(false);
+      }
+    }
     
   
     const validarTel = (e) => {
@@ -112,8 +127,6 @@ export const Gestion = () => {
         setTelStatus(false);
       }
     };
-    
-
 
     const validar = (metodo) => {
       event.preventDefault();
@@ -121,15 +134,21 @@ export const Gestion = () => {
       validarEmail(email);
       validarTel(phoneNumber);
 
-      if (names.trim() === "") {
+      if (!names || names.trim() === "") {
         Swal.fire("Advertencia", "Escribe el Nombre", "warning");
-      } else if (surname.trim() === "") {
+      } else if (!surname || surname.trim() === "") {
         Swal.fire("Advertencia", "Escribe el Apellido Paterno", "warning");
-      } else if (lastname.trim() === "") {
+      } else if (!lastname || lastname.trim() === "") {
         Swal.fire("Advertencia", "Escribe el Apellido Materno", "warning");
-      } else if (email.trim() === "") {
+      } else if (!email || email.trim() === "") {
         Swal.fire("Advertencia", "Escribe el correo", "warning");
-      } else {
+      } else if (!emailStatus) {
+        Swal.fire("Error", "El Correo Electrónico no es válido",'error');
+      } else if (!phoneNumber || phoneNumber.trim() === "") {
+        Swal.fire("Advertencia", "Escribe el número de telefono", "warning");
+      }  else if (!telStatus) {
+        Swal.fire("Error", "El Número Telefónico debe contener 10 digitos","error");
+      }else {
         const parametros = {
           id: id,
           names: names,
@@ -141,17 +160,10 @@ export const Gestion = () => {
           address: "",
           curp: ""
         };
-
         if (emailStatus && telStatus) {
           enviarSolicitud(metodo, parametros, url);
           getUsuarios();
-        } else {
-          if (!emailStatus) {
-            Swal.fire("Error", "El Correo Electrónico no es válido");
-          } else if (!telStatus) {
-            Swal.fire("Error", "El Número Telefónico no es válido");
-          }
-        }
+        } 
       }
     };
 
@@ -166,6 +178,57 @@ export const Gestion = () => {
           Authorization: `Bearer ${token}`
         } 
       }).then(function (respuesta) {
+        if (respuesta.status >= 200 && respuesta.status < 300) {
+          getUsuarios();
+          setModalOpen(false);
+          setOpenEdit(false);
+          limpiar();
+        } else {
+          // Maneja cualquier otro código de estado que no sea 2xx
+          Swal.fire("Error", "Error en la Solicitud");
+        }
+      })
+      .catch(function (error) {
+        console.error(error); // Verifica el error en consola
+        Swal.fire("Error", "Error en la Solicitud");
+      });
+    }
+
+    const eliminarAlerta=(idUsuario)=>{
+      event.preventDefault();
+      Swal.fire({
+        title:'Eliminar',
+        text:'¿Eliminar usuario?',
+        icon:'warning',
+        cancelButtonText:'Cancelar',
+        confirmButtonText:'Eliminar'
+      }).then((r)=>{
+      if(r.isConfirmed){
+        eliminarUsuario(idUsuario)
+      }}).then(() => {
+        Swal.fire({
+          title: 'Usuario eliminado',
+          text: 'El usuario ha sido eliminado',
+          icon: 'success',
+        });
+      }).catch((error) => {
+          Swal.fire({
+            title: 'Error',
+            text: 'Hubo un problema al eliminar el usuario',
+            icon: 'error',
+          });
+      });
+    };
+
+    const eliminarUsuario= async(idUsuario)=>{
+      await axios({
+        method: 'DELETE',
+        url: url,
+        data: {id:idUsuario},
+        headers: {
+          Authorization: `Bearer ${token}`
+        } 
+      }).then(function (respuesta) {
         getUsuarios();
         setModalOpen(false);
         setOpenEdit(false);
@@ -175,6 +238,21 @@ export const Gestion = () => {
       });
     }
 
+    const limpiar=()=>{
+      setEmailStatus(false);
+      setTelStatus(false);
+      setNames("");
+      setSurname("");
+      setLastname("");
+      setEmail("");
+      setPhoneNumber("");
+  }
+
+  useEffect(() => {
+    if (modalEdit) {
+      validacionUpdate(email, phoneNumber);
+    }
+  }, [modalEdit, email, phoneNumber]);
 
     return(
         <>
@@ -214,7 +292,7 @@ export const Gestion = () => {
                                                 <button className="btn btn-warning mr-2" style={{ width: '77px', maxWidth: '77px'}} onClick={() => openModalEdit(
                                                         user.id, user.names, user.surname, user.lastname, user.email, user.phoneNumber
                                                     )}>Editar</button>
-                                                    <button className="btn" style={{ backgroundColor: "#e75a5a", marginRight: "5px", width: '77px', maxWidth: '77px' }} onClick={() => deleteUsuario(
+                                                    <button className="btn" style={{ backgroundColor: "#e75a5a", marginRight: "5px", width: '77px', maxWidth: '77px' }} onClick={() => eliminarAlerta(
                                                         user.id)}>Eliminar</button>
                                                 </div>
                                             </td>
@@ -248,8 +326,11 @@ export const Gestion = () => {
                                 <input type="text" className="form-control mb-2" name="names" placeholder="Nombre" onChange={(e) => setNames(e.target.value)}  required />
                                 <input type="text" className="form-control mb-2" name="surname" placeholder="Apellido Paterno" onChange={(e) => setSurname(e.target.value)}  required />
                                 <input type="text" className="form-control mb-2" name="lastname" placeholder="Apellido Materno" onChange={(e) => setLastname(e.target.value)}  required />
-                                <input type="email" className="form-control mb-2" name="email" placeholder="Correo" onChange={(e) => {setEmail(e.target.value);}}  required />
-                                <input type="text" className="form-control mb-2" name="phoneNumber" placeholder="Teléfono" onChange={(e) => {setPhoneNumber(e.target.value);}}  required />
+                                <input type="email" className="form-control mb-2" name="email" placeholder="Correo" onChange={(e) => {setEmail(e.target.value); validarEmail(e.target.value);}}  required />
+                                <input type="number" className="form-control mb-2" name="phoneNumber" placeholder="Teléfono" onChange={(e) => {setPhoneNumber(e.target.value);}}  required 
+                                maxLength={10} onInput={ (e)=> {e.target.value= e.target.value.slice(0,10);
+                                  if(e.target.value <0) e.target.value=""}
+                                  }/>
                                 <button className="btn btn-primary" onClick={() => validar("POST")}>Guardar</button>
                             </form>
                         </div>
@@ -271,8 +352,11 @@ export const Gestion = () => {
                                 <input type="text" className="form-control mb-2" name="names" placeholder="Nombre" value={names} onChange={(e) => setNames(e.target.value)} required/>
                                 <input type="text" className="form-control mb-2" name="surname" placeholder="Apellido Paterno" value={surname} onChange={(e) => setSurname(e.target.value)} required />
                                 <input type="text" className="form-control mb-2" name="lastname" placeholder="Apellido Materno" value={lastname} onChange={(e) => setLastname(e.target.value)} required />
-                                <input type="email" className="form-control mb-2" name="email" placeholder="Correo"value={email} onChange={(e) => {setEmail(e.target.value);}} required />
-                                <input type="text" className="form-control mb-2" name="phoneNumber" placeholder="Teléfono" value={phoneNumber} onChange={(e) => {setPhoneNumber(e.target.value);}} required  />
+                                <input type="email" className="form-control mb-2" name="email" placeholder="Correo"value={email} onChange={(e) => {setEmail(e.target.value);}} onInput={(e) => { validarEmail(e.target); }} required />
+                                <input type="number" className="form-control mb-2" name="phoneNumber" placeholder="Teléfono" value={phoneNumber} onChange={(e) => {setPhoneNumber(e.target.value);}} required  
+                                maxLength={10} onInput={ (e)=> {e.target.value= e.target.value.slice(0,10);
+                                  if(e.target.value <0) e.target.value=""}
+                                  }/>
                                 <button className="btn btn-primary" onClick={() => validar("PUT")}>
                                     Actualizar
                                 </button>
