@@ -1,61 +1,63 @@
+import axios from "axios";
 import { useState } from "react";
 import { Container, Form, Button } from "react-bootstrap";
 import { redirect, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-export const Login = () => { 
+import './css/Login.css';
 
-<<<<<<< HEAD
+export const Login = () => { 
+    const urlAuth = "http://127.0.0.1:8080/api/auth/signin";
+
     const [ usuario, setUsuario ] = useState("");
     const [ contra, setContra ] = useState("");
 
     const navigate = useNavigate();
 
-    let usuarios=[
-        {"usuario":"Diego","contraseña":"1234"},
-        {"usuario":"Miguel","contraseña":"1234"}
-    ]
+    const validar = async () => {
+      console.log("DSADSADSA");
+  
+      try {
+          const res = await axios.post(urlAuth, {
+              username: usuario,
+              password: contra
+          });
+          
+          localStorage.setItem("token", res.data.data);
+          navigate("/Gestion");
+      } catch (error) {
+          console.error("Error en la petición:", error);
+      }
+  };
+  
 
-    function iniciarSesion(){
-        let usuarioIniciado= null;
-        usuarioIniciado={
-            "usuario": usuario,
-            "contraseña": contra
-        }
-        let si=0;
-        for (let i=0; i<usuarios.length;i++){
-            let user= usuarios[i];
-            if(usuarioIniciado.usuario==user.usuario && usuarioIniciado.contraseña==user.contraseña){
-                localStorage.setItem("usuario", JSON.stringify(usuarioIniciado));
-                navigate("/Gestion");
-                si=1;
-                break;
-            } else{
-                si=0;
-            }
-        }
-        if(si==0){
-            Swal.fire("Usuario no encontrado","Uusario y/o contraseña erroneos","error");
-        }
-    }
-=======
-    localStorage.setItem("usuario", 'si')
-
->>>>>>> main
-    return(
+    return (
         <>
-        <Container>
-        <Form>
-            <Form.Label>Nombre usuario</Form.Label>
-            <Form.Control placeholder="Nombre usuario" onChange={(e) => setUsuario(e.target.value)}/>
-            <Form.Label > Contraseña</Form.Label>
-            <Form.Control placeholder="Contraseña" type="password" onChange={(e) => setContra(e.target.value)}/>
-        </Form>
-        <Button className="form-submit-button" type="submit" onClick={() => iniciarSesion()}>
+          <Container className="login-container">
+            <div className="login-form">
+              <Form.Label className="form-label">Nombre usuario</Form.Label>
+              <Form.Control 
+                className="form-control" 
+                placeholder="Usuario" 
+                onChange={(e) => setUsuario(e.target.value)} 
+              />
+              
+              <Form.Label className="form-label">Contraseña</Form.Label>
+              <Form.Control 
+                className="form-control" 
+                placeholder="Contraseña" 
+                type="password" 
+                onChange={(e) => setContra(e.target.value)} 
+              />
+              
+              <Button 
+                className="form-submit-button"
+                onClick={() => validar()}
+              >
                 Iniciar sesión
               </Button>
-        </Container>
-        
+            </div>
+          </Container>
         </>
-    );
+      );
 }
